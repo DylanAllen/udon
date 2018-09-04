@@ -37,7 +37,7 @@ export default {
   name: 'App',
   data () {
     return {
-      'email': firebase.auth().currentUser.email,
+      'email': '',
       'uid': ''
     }
   },
@@ -54,13 +54,17 @@ export default {
   },
   created: function () {
     var self = this
-    db.collection('users').where('email', '==', this.email)
-      .get()
-      .then(function (querySnapshot) {
-        querySnapshot.forEach(function (doc) {
-          self.uid = doc.id
+    let currentUser = firebase.auth().currentUser
+    if (currentUser) {
+      this.email = firebase.auth().currentUser.email
+      db.collection('users').where('email', '==', this.email)
+        .get()
+        .then(function (querySnapshot) {
+          querySnapshot.forEach(function (doc) {
+            self.uid = doc.id
+          })
         })
-      })
+    }
   }
 }
 </script>

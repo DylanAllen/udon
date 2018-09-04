@@ -9,8 +9,8 @@
       <h4>Task: {{task.task}}</h4>
       <input v-model="date" type="date">
       <input v-model="comments" type="text" placeholder="What did you do?">
-      <input v-model="hours" type="number" placeholder="0" autofocus v-on:keydown.13="logHours(activeClientID, client, project, projectName, activeProject, activeTask, activeTaskId, hours, comments)">
-      <button type="button" v-if="!this.timeEntryID" v-on:click="logHours(activeClientID, client, clientName, project, projectName, activeProject, activeTask, activeTaskId, hours, comments, date)">Submit</button>
+      <input v-model="hours" type="number" placeholder="0" autofocus v-on:keydown.13="logHours(activeClientId, client, project, projectName, activeProject, activeTask, activeTaskId, hours, comments)">
+      <button type="button" v-if="!this.timeEntryID" v-on:click="logHours(activeClientId, client, clientName, project, projectName, activeProject, activeTask, activeTaskId, hours, comments, date)">Submit</button>
       <button type="button" v-if="this.timeEntryID" v-on:click="updateHours(timeEntryID, hours, comments, date, projectId, clientId, activeTaskId)">Edit</button>
     </div>
   </div>
@@ -21,7 +21,7 @@ import { db } from '../main'
 import writeFunctions from '../mixins/writeFunctions'
 export default {
   mixins: [writeFunctions],
-  props: ['activeProject', 'activeTask', 'toggleModal()', 'client', 'budget', 'logged', 'activeTaskId', 'activeClientID', 'timeEntryID'],
+  props: ['activeProject', 'activeTask', 'toggleModal()', 'client', 'budget', 'logged', 'activeTaskId', 'activeClientId', 'timeEntryID'],
   name: 'LogHour',
   data () {
     return {

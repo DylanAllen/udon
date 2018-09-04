@@ -61,7 +61,7 @@
         <!-- </div> -->
         <div class="projectactions">
           <div class="clear"></div>
-          <div class="projaction" v-on:click="editProject(project.id)">
+          <div class="projaction" v-on:click="editProject(project.id, project.clientId)">
             <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IiB2aWV3Qm94PSIwIDAgNTk4LjIgNTk4LjIiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDU5OC4yIDU5OC4yOyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+PHN0eWxlIHR5cGU9InRleHQvY3NzIj4uc3Qwe2ZpbGw6IzU4NTk1Qjt9PC9zdHlsZT48Zz48cGF0aCBjbGFzcz0ic3QwIiBkPSJNMjkuNiwzODguOUwzMjQuOCw5My43TDUwNCwyNzIuOUwyMDguOCw1NjguMUwyOS42LDM4OC45eiIvPjxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik01ODYuMywxMzMuNWMxNS44LDE1LjcsMTUuOCw0MS4zLDAuMSw1Ny4xYzAsMC0wLjEsMC4xLTAuMSwwLjFsLTYxLjEsNjEuMUwzNDYuMSw3Mi41bDYxLjEtNjEuMmMxNS44LTE1LjgsNDEuMy0xNS44LDU3LjEtMC4xYzAsMCwwLDAsMC4xLDAuMUw1ODYuMywxMzMuNXoiLz48cGF0aCBjbGFzcz0ic3QwIiBkPSJNMCw0NzUuOXYxMjIuOGgxMjIuOEwwLDQ3NS45eiIvPjwvZz48L3N2Zz4=" class="projecticon" v-tooltip.top-center="'Edit Project'">
           </div>
           <router-link :to="'/project/' + project.id">
@@ -88,7 +88,7 @@
           <AddProject/>
         </div>
         <div id="editproject" v-if="this.modalForm == 'editProject'">
-          <EditProject v-bind:activeProject="activeProject"/>
+          <EditProject v-bind:activeProject="activeProject" v-bind:activeClientId="activeClientId"/>
         </div>
         <div id="addtask" v-if="this.modalForm == 'addtask'">
           <AddTask v-bind:activeProject="activeProject"/>
@@ -126,6 +126,7 @@ export default {
       status: '',
       activeProject: '',
       activeProjectID: '',
+      activeClientId: '',
       clientFilter: {id: 'all', name: 'All Clients'},
       modalForm: '',
       clientSelect: [],
@@ -175,8 +176,9 @@ export default {
         )
       this.toggleModal()
     },
-    editProject (id) {
+    editProject (id, clientId) {
       this.activeProject = id
+      this.activeClientID = clientId
       this.modalForm = 'editProject'
       this.toggleModal()
     },
@@ -288,6 +290,8 @@ export default {
       })
       .catch(function (error) {
         console.log('Error getting meta:', error)
+        self.statuses.push('All')
+        self.statuses.push('All Open')
       })
     this.setProjects()
     this.updateSelects()

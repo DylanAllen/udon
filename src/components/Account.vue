@@ -18,8 +18,10 @@
 <script>
 import firebase from 'firebase'
 import { db } from '../main'
+import writeFunctions from '../mixins/writeFunctions'
 export default {
   name: 'account',
+  mixins: [writeFunctions],
   data () {
     return {
       'userdata': [],

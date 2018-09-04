@@ -74,13 +74,13 @@
       <div class="modal">
         <div class="modalinner">
           <div id="editproject" v-if="this.modalForm == 'editProject'">
-            <EditProject v-bind:activeProject="activeProject" v-bind:logged="logged" v-bind:activeClientID="activeClientID"/>
+            <EditProject v-bind:activeProject="activeProject" v-bind:logged="logged" v-bind:activeClientId="activeClientId"/>
           </div>
           <div id="addtask" v-if="this.modalForm == 'createTask'">
-            <AddTask v-bind:activeProject="activeProject" v-bind:activeClientID="activeClientID"/>
+            <AddTask v-bind:activeProject="activeProject" v-bind:activeClientId="activeClientId"/>
           </div>
           <div id="loghour" v-if="this.modalForm == 'loghours'">
-            <LogHour v-bind:activeProject="activeProject" v-bind:activeTask="activeTask" v-bind:client="client" v-bind:budget="budget" v-bind:logged="logged" v-bind:activeTaskId="activeTaskId" v-bind:activeClientID="activeClientID"/>
+            <LogHour v-bind:activeProject="activeProject" v-bind:activeTask="activeTask" v-bind:client="client" v-bind:budget="budget" v-bind:logged="logged" v-bind:activeTaskId="activeTaskId" v-bind:activeClientId="activeClientId"/>
           </div>
           <div id="modalcloser" v-on:click="deactivateModal">
             <img src="../assets/plus-ico.svg" id="addprojecticon" class="closer">
@@ -121,7 +121,7 @@ export default {
       activeProject: '',
       activeTask: '',
       activeTaskId: '',
-      activeClientID: '',
+      activeClientId: '',
       modalForm: '',
       clientName: '',
       tasks: [],
@@ -190,7 +190,7 @@ export default {
             self.files = doc.data().files
             self.client = doc.data().client
             self.clientName = doc.data().clientName
-            self.activeClientID = doc.data().clientId
+            self.activeClientId = doc.data().clientId
             self.logged = doc.data().logged
             self.queryTasks()
           }
@@ -236,7 +236,6 @@ export default {
     },
     scrollDown () {
       window.scrollTo(0, document.body.scrollHeight)
-      console.log('Scroll Down')
     }
   },
   created: function () {

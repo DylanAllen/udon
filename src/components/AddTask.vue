@@ -7,7 +7,7 @@
       <input v-model="taskName" placeholder="task Name">
       <input v-model="category" type="text" placeholder="task Category">
       <input v-model="budget" type="number" placeholder="Budget (Hours)">
-      <button type="button" v-on:click="createTask(activeClientID, clientName, activeProject, project, projectName, taskName, budget, category)">Add task</button>
+      <button type="button" v-on:click="createTask(activeClientId, clientName, activeProject, project, projectName, taskName, budget, category)">Add task</button>
     </form>
   </div>
 </template>
@@ -17,7 +17,7 @@ import { db } from '../main'
 import writeFunctions from '../mixins/writeFunctions'
 export default {
   mixins: [writeFunctions],
-  props: ['activeProject', 'toggleModal()', 'activeClientID'],
+  props: ['activeProject', 'toggleModal()', 'activeClientId'],
   name: 'AddTask',
   data () {
     return {

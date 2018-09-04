@@ -188,17 +188,34 @@ svg.fa-icon {
 h3 {
   text-align: center;
 }
-#sidebar {
-  float: left;
-  width: 25%;
-}
-.contentright {
-  width: 75%;
-  float: left;
+.leftsidebarcontent {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  max-width: 1400px;
+  margin: auto;
 }
 .rightinner {
   padding: 0 30px;
 }
+
+.inputcontainer {
+    display: grid;
+    grid-template-columns: auto 1fr;
+
+    .label {
+      border-right: 1px solid #eaeaea;
+      text-align: right;
+      font-weight: 800;
+    }
+    .label, .name {
+      padding: 10px;
+      border-bottom: 1px solid #eaeaea;
+    }
+    .label:last-child, .name:last-child, .label:nth-last-child(2) {
+      border-bottom: none;
+    }
+}
+
 .fade-enter-active {
   transition-timing-function: ease-in;
   transition-property: all;

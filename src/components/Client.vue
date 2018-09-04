@@ -1,28 +1,36 @@
 <template>
   <div>
-    <div id="sidebar">
-      <ul id="clientlist">
-        <li class="client" v-for="(client, idx) in clients" :key="idx" v-bind:class="{ active:activeClient == client.id }" v-on:click="displayClient( client.id, this)">{{ client.name }}</li>
-      </ul>
-    </div>
-    <div class="contentright">
-      <div class="rightinner">
-        <div class="clientdetails">
-          <h2>Client Info</h2>
-          <span class="label">NAME</span><br/>
-          <span class="name">{{ name }}</span><br/><br/>
-          <span class="label">CONTACT NAME</span><br/>
-          <span class="name">{{ contact }}</span><br/><br/>
-          <button id="triggermodal" v-bind:class="{visible:activeClient != ''}" v-on:click="updateModal">Update Client Info</button>
-        </div>
-        <div id="editclient" v-on:click="deactivateMe">
-          <form>
-            <input v-model="name" autocomplete="organization" placeholder="Client Name">
-            <input v-model="contact" autocomplete="name" placeholder="Contact Name">
-            <input v-model="email" autocomplete="email" placeholder="Contact Email">
-            <input type="checkbox" v-model="active">
-            <button type="button" v-on:click="updateClient(activeClient, name, contact, email, active)">Update</button>
-          </form>
+    <h1>Client Info</h1>
+    <div class="leftsidebarcontent">
+      <div id="sidebar">
+        <ul id="clientlist">
+          <li class="client" v-for="(client, idx) in clients" :key="idx" v-bind:class="{ active:activeClient == client.id }" v-on:click="displayClient( client.id, this)">{{ client.name }}</li>
+        </ul>
+      </div>
+      <div class="contentright">
+        <div class="rightinner">
+          <div class="clientdetails">
+            <div class="inputcontainer">
+              <div class="label">NAME</div>
+              <div class="name">{{ name }}</div>
+              <div class="label">CONTACT NAME</div>
+              <div class="name">{{ contact }}</div>
+              <div class="label">EMAIL</div>
+              <div class="name">{{ email }}</div>
+              <div class="label">ACTIVE</div>
+              <div class="name">{{ active }}</div>
+            </div>
+            <button id="triggermodal" v-bind:class="{visible:activeClient != ''}" v-on:click="updateModal">Update Client Info</button>
+          </div>
+          <div id="editclient" v-on:click="deactivateMe">
+            <form>
+              <input v-model="name" autocomplete="organization" placeholder="Client Name">
+              <input v-model="contact" autocomplete="name" placeholder="Contact Name">
+              <input v-model="email" autocomplete="email" placeholder="Contact Email">
+              <input type="checkbox" v-model="active">
+              <button type="button" v-on:click="updateClient(activeClient, name, contact, email, active)">Update</button>
+            </form>
+          </div>
         </div>
       </div>
     </div>
@@ -43,11 +51,6 @@ export default {
       email: '',
       active: '',
       activeClient: ''
-    }
-  },
-  firestore () {
-    return {
-      clients: db.collection('clients').orderBy('createdAt')
     }
   },
   methods: {
@@ -77,6 +80,15 @@ export default {
     deactivateMe () {
       event.target.classList.toggle('active')
     }
+  },
+  created: function () {
+    db.collection('clients').get().then(function (querySnapshot) {
+      querySnapshot.forEach(function (doc) {
+        var record = doc.data()
+        record.id = doc.id
+        this.clients.push(record)
+      }.bind(this))
+    }.bind(this))
   }
 }
 </script>
@@ -139,6 +151,22 @@ li.client.active {
 
 #triggermodal.visible {
   display: block;
+}
+input {
+  flex-wrap: wrap;
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+button {
+    width: 300px;
+    padding: 10px;
+    font-size: 18px;
+    margin: 20px auto;
+    display: block;
+    background-color: #f2f2f2;
+    color: #666666;
 }
 span.label {
     font-weight: 800;

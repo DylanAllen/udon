@@ -9,8 +9,8 @@
       <select v-model="type" placeholder="Project Type">
         <option value="print">Print</option>
         <option value="web design">Web Design</option>
-        <option value=""></option>
-        <option value=""></option>
+        <option value="">SEO</option>
+        <option value="">Web Development</option>
       </select>
       <input v-model="start" type="date" placeholder="Start Date">
       <input v-model="due" type="date" placeholder="Due Date">
@@ -31,10 +31,9 @@ import writeFunctions from '../mixins/writeFunctions'
 export default {
   mixins: [writeFunctions],
   props: ['addProjCallback()'],
-  name: 'Clients',
+  name: 'AddProject',
   data () {
     return {
-      projects: [],
       clients: [],
       projectname: '',
       client: '',
@@ -47,12 +46,6 @@ export default {
       type: ''
     }
   },
-  firestore () {
-    return {
-      projects: db.collection('projects').orderBy('due'),
-      clients: db.collection('clients').orderBy('name')
-    }
-  },
   methods: {
     checkClient () {
       var self = this
@@ -63,6 +56,15 @@ export default {
     projCallback () {
       this.$emit('projCallback')
     }
+  },
+  created: function () {
+    db.collection('clients').get().then(function (querySnapshot) {
+      querySnapshot.forEach(function (doc) {
+        var record = doc.data()
+        record.id = doc.id
+        this.clients.push(record)
+      }.bind(this))
+    }.bind(this))
   }
 }
 </script>

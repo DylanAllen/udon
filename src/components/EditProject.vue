@@ -32,7 +32,7 @@ import writeFunctions from '../mixins/writeFunctions'
 export default {
   name: 'EditProject',
   mixins: [writeFunctions],
-  props: ['activeProject', 'projCallback()', 'logged', 'activeClientID'],
+  props: ['activeProject', 'projCallback()', 'logged', 'activeClientId'],
   data () {
     return {
       projectname: '',
@@ -62,7 +62,7 @@ export default {
       }
       db.collection('projects').doc(this.activeProject).update(projectData)
         .then(function (docRef) {
-          self.logActivity(self.activeClientID, self.activeProject, 'projects', projectData, 'update')
+          self.logActivity(self.activeClientId, self.activeProject, 'projects', projectData, 'update')
         })
       this.$parent.projCallback()
     },

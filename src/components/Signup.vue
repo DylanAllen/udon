@@ -34,35 +34,31 @@ export default {
     signUp: function () {
       var theuname = this.username
       var self = this
-      if (!this.email.endsWith('@hamptoncreative.com')) {
-        alert('Sorry, this site is only available to HC employees at thie point.')
-      } else {
-        firebase.auth().createUserWithEmailAndPassword(this.email, this.password).then(
-          function (user) {
-            db.collection('users').doc(user.uid).set({
-              name: self.username,
-              email: self.email,
-              department: self.department,
-              phone: self.phone,
-              title: self.title
-            }).then(user.updateProfile({
-              displayName: theuname
-            }).then(function () {
-              user.sendEmailVerification().then(function () {
-                alert('Please confirm your email address.')
-              }).catch(function (error) {
-                alert('Error: ' + error)
-              })
-              router.replace('home')
+      firebase.auth().createUserWithEmailAndPassword(this.email, this.password).then(
+        function (user) {
+          db.collection('users').doc(user.uid).set({
+            name: self.username,
+            email: self.email,
+            department: self.department,
+            phone: self.phone,
+            title: self.title
+          }).then(user.updateProfile({
+            displayName: theuname
+          }).then(function () {
+            user.sendEmailVerification().then(function () {
+              alert('Please confirm your email address.')
             }).catch(function (error) {
-              alert('Error: ' + error.message)
-            }))
-          },
-          function (err) {
-            alert('Oops.' + err.message)
-          }
-        )
-      }
+              alert('Error: ' + error)
+            })
+            router.replace('home')
+          }).catch(function (error) {
+            alert('Error: ' + error.message)
+          }))
+        },
+        function (err) {
+          alert('Oops.' + err.message)
+        }
+      )
     }
   }
 }
