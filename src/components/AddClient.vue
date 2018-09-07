@@ -36,7 +36,6 @@ export default {
   },
   methods: {
     addClient (name, contact, email, activeclient) {
-      var self = this
       const createdAt = new Date()
       var clientData = {
         'name': name,
@@ -46,12 +45,12 @@ export default {
         'email': email
       }
       db.collection('clients').add(clientData).then(function (docRef) {
-        alert('New Client: ' + self.name + ' added.')
-        self.logActivity(docRef.id, '', 'clients', docRef, 'create')
-        self.name = ''
-        self.contact = ''
-        self.email = ''
-      }).catch(function (error) {
+        alert('New Client: ' + this.name + ' added.')
+        this.logActivity(docRef.id, '', 'clients', docRef, 'create')
+        this.name = ''
+        this.contact = ''
+        this.email = ''
+      }.bind(this)).catch(function (error) {
         alert('Error: ' + error)
       })
     },

@@ -43,6 +43,9 @@
           <div class="task" v-for="(task, idx) in tasks" :key="idx" :id="task.id">
             <div class="taskname">
               <div class="log-icon" v-on:click="hourModal(task, task.id)">
+                <img src="../assets/plus-ico.svg" class="log-image">
+              </div>
+              <div class="log-icon" v-on:click="startTimer(task, task.id)">
                 <img src="../assets/clock-ico.svg" class="log-image">
               </div>
               {{task.task}}
@@ -80,7 +83,7 @@
             <AddTask v-bind:activeProject="activeProject" v-bind:activeClientId="activeClientId"/>
           </div>
           <div id="loghour" v-if="this.modalForm == 'loghours'">
-            <LogHour v-bind:activeProject="activeProject" v-bind:activeTask="activeTask" v-bind:client="client" v-bind:budget="budget" v-bind:logged="logged" v-bind:activeTaskId="activeTaskId" v-bind:activeClientId="activeClientId"/>
+            <LogHour v-bind:activeProject="activeProject" v-bind:activeTask="activeTask" v-bind:client="client" v-bind:budget="budget" v-bind:logged="logged" v-bind:activeTaskId="activeTaskId" v-bind:activeClientId="activeClientId" v-bind:activeProjectId="activeProject"/>
           </div>
           <div id="modalcloser" v-on:click="deactivateModal">
             <img src="../assets/plus-ico.svg" id="addprojecticon" class="closer">
@@ -97,7 +100,7 @@ import EditProject from './EditProject'
 import writeFunctions from '../mixins/writeFunctions'
 import AddTask from './AddTask'
 import LogHour from './LogHour'
-import firebase from 'firebase'
+import firebase from 'firebase/app'
 export default {
   mixins: [writeFunctions],
   name: 'Project',
@@ -173,41 +176,39 @@ export default {
     displayProject (id) {
       var pastState = this.activeProject
       this.activeProject = id
-      var self = this
       db.collection('projects').doc(id)
         .onSnapshot(function (doc) {
           if (!doc.exists) {
             console.log('No such document!')
-            self.activeClient = pastState
+            this.activeClient = pastState
           } else {
-            self.project = doc.data()
-            self.projectname = doc.data().name
-            self.status = doc.data().status
-            self.start = doc.data().start
-            self.due = doc.data().due
-            self.budget = doc.data().budget
-            self.retainer = doc.data().retainer
-            self.files = doc.data().files
-            self.client = doc.data().client
-            self.clientName = doc.data().clientName
-            self.activeClientId = doc.data().clientId
-            self.logged = doc.data().logged
-            self.queryTasks()
+            this.project = doc.data()
+            this.projectname = doc.data().name
+            this.status = doc.data().status
+            this.start = doc.data().start
+            this.due = doc.data().due
+            this.budget = doc.data().budget
+            this.retainer = doc.data().retainer
+            this.files = doc.data().files
+            this.client = doc.data().client
+            this.clientName = doc.data().clientName
+            this.activeClientId = doc.data().clientId
+            this.logged = doc.data().logged
+            this.queryTasks()
           }
-        })
+        }.bind(this))
     },
     queryTasks () {
       var project = db.collection('projects').doc(this.activeProject)
-      var self = this
       db.collection('tasks').where('project', '==', project)
         .onSnapshot(function (querySnapshot) {
-          self.tasks = []
+          this.tasks = []
           querySnapshot.forEach(function (doc) {
             var thetask = doc.data()
             thetask.id = doc.id
-            self.tasks.push(thetask)
-          })
-        })
+            this.tasks.push(thetask)
+          }.bind(this))
+        }.bind(this))
     },
     hourModal (task) {
       this.activeTask = task.task
@@ -215,17 +216,29 @@ export default {
       this.modalForm = 'loghours'
       this.toggleModal()
     },
+    startTimer (task, taskId) {
+      var timerData = {
+        projectId: this.activeProject,
+        clientId: this.activeClientId,
+        clientName: this.clientName,
+        taskId: taskId,
+        client: this.client,
+        project: this.project,
+        projectName: this.project.name,
+        task: task
+      }
+      this.$root.$emit('timerStart', timerData)
+    },
     displayChats (projectId) {
-      var self = this
       db.collection('chats').where('projectId', '==', projectId).orderBy('timeStamp')
         .onSnapshot(function (querySnapshot) {
-          self.messages = []
+          this.messages = []
           querySnapshot.forEach(function (doc) {
             var themessage = doc.data()
             themessage.id = doc.id
-            self.messages.push(themessage)
-          })
-        })
+            this.messages.push(themessage)
+          }.bind(this))
+        }.bind(this))
     },
     getChatClasses (uid) {
       if (uid === this.currentuser) {
@@ -239,12 +252,13 @@ export default {
     }
   },
   created: function () {
-    var self = this
     this.displayProject(this.$route.params.project)
     this.displayChats(this.$route.params.project)
     firebase.auth().onAuthStateChanged(function (user) {
-      self.currentuser = user.uid
-    })
+      if (user) {
+        this.currentuser = user.uid
+      }
+    }.bind(this))
   }
 }
 </script>

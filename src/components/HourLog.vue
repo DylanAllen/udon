@@ -112,7 +112,7 @@
     <div class="modal">
       <div class="modalinner">
         <div id="loghour" v-if="this.modalForm == 'loghours'">
-          <LogHour v-bind:timeEntryID="timeEntryID" v-bind:activeProject="activeProject" v-bind:activeTask="activeTask" v-bind:client="client" v-bind:budget="budget" v-bind:logged="logged" v-bind:activeTaskId="activeTaskId" v-bind:activeClientID="activeClientID"/>
+          <LogHour v-bind:timeEntryID="timeEntryID" v-bind:activeProject="activeProject" v-bind:activeTask="activeTask" v-bind:client="client" v-bind:budget="budget" v-bind:logged="logged" v-bind:activeTaskId="activeTaskId" v-bind:activeClientID="activeClientID" v-bind:activeProjectId="activeProjectId"/>
         </div>
         <div id="modalcloser" v-on:click="deactivateModal">
           <img src="../assets/plus-ico.svg" id="addprojecticon" class="closer">
@@ -124,7 +124,7 @@
 
 <script>
 import { db } from '../main'
-import firebase from 'firebase'
+import firebase from 'firebase/app'
 import LogHour from './LogHour'
 import writeFunctions from '../mixins/writeFunctions'
 export default {
@@ -158,6 +158,7 @@ export default {
       'modalForm': '',
       'timeEntryID': '',
       'activeProject': '',
+      'activeProjectId': '',
       'activeTask': '',
       'client': '',
       'budget': '',
@@ -170,17 +171,16 @@ export default {
   },
   computed: {
     filteredLog: function () {
-      var self = this
-      return self.log.filter(function (item) {
-        var passing = ((self.clientFilter !== null) ? item.clientName.toLowerCase().indexOf(self.clientFilter.toLowerCase()) !== -1 : true) &&
-          ((self.projectFilter !== null) ? item.projectName.toLowerCase().indexOf(self.projectFilter.toLowerCase()) !== -1 : true) &&
-          ((self.taskFilter !== null) ? item.task.toLowerCase().indexOf(self.taskFilter.toLowerCase()) !== -1 : true) &&
-          ((self.userFilterB !== null) ? item.username.toLowerCase().indexOf(self.userFilterB.toLowerCase()) !== -1 : true) &&
-          ((self.descFilter !== null && item.comments !== undefined) ? item.comments.toLowerCase().indexOf(self.descFilter.toLowerCase()) !== -1 : true) &&
-          ((self.descFilter === null) || !(self.descFilter.length && item.comments === undefined)) &&
-          ((self.startdate !== '' && self.enddate !== '') && ((item.activityDate.toDate() >= new Date(self.startdate)) && (item.activityDate.toDate() <= self.addDays(new Date(self.enddate), 1))))
+      return this.log.filter(function (item) {
+        var passing = ((this.clientFilter !== null) ? item.clientName.toLowerCase().indexOf(this.clientFilter.toLowerCase()) !== -1 : true) &&
+          ((this.projectFilter !== null) ? item.projectName.toLowerCase().indexOf(this.projectFilter.toLowerCase()) !== -1 : true) &&
+          ((this.taskFilter !== null) ? item.task.toLowerCase().indexOf(this.taskFilter.toLowerCase()) !== -1 : true) &&
+          ((this.userFilterB !== null) ? item.username.toLowerCase().indexOf(this.userFilterB.toLowerCase()) !== -1 : true) &&
+          ((this.descFilter !== null && item.comments !== undefined) ? item.comments.toLowerCase().indexOf(this.descFilter.toLowerCase()) !== -1 : true) &&
+          ((this.descFilter === null) || !(this.descFilter.length && item.comments === undefined)) &&
+          ((this.startdate !== '' && this.enddate !== '') && ((item.activityDate.toDate() >= new Date(this.startdate)) && (item.activityDate.toDate() <= this.addDays(new Date(this.enddate), 1))))
         return passing
-      })
+      }.bind(this))
     },
     hourstotal: function () {
       var thetotal = 0
@@ -192,11 +192,10 @@ export default {
   },
   watch: {
     $route (to, from) {
-      var self = this
       if (this.$route.path === '/timelog') {
-        self.userFilter = ''
+        this.userFilter = ''
       } else {
-        self.userFilter = self.uid
+        this.userFilter = this.uid
       }
       this.queryHours()
     }
@@ -261,7 +260,6 @@ export default {
       }
     },
     sortLog () {
-      var self = this
       switch (this.sortLabel) {
         case 'Client':
           this.sortValue = 'clientName'
@@ -285,15 +283,15 @@ export default {
           this.sortValue = 'clientName'
       }
       function compare (a, b) {
-        if (a[self.sortValue] < b[self.sortValue]) {
-          return -1 * self.sortDir
+        if (a[this.sortValue] < b[this.sortValue]) {
+          return -1 * this.sortDir
         }
-        if (a[self.sortValue] > b[self.sortValue]) {
-          return 1 * self.sortDir
+        if (a[this.sortValue] > b[this.sortValue]) {
+          return 1 * this.sortDir
         }
         return 0
       }
-      this.log.sort(compare)
+      this.log.sort(compare.bind(this))
     },
     toggleSortDir (e) {
       if (!e) e = window.event
@@ -325,6 +323,9 @@ export default {
       this.timeEntryID = logId
       this.activeProject = projectName
       this.activeTaskId = taskId
+      db.collection('tasks').doc(taskId).get().then(function (documentSnapshot) {
+        this.activeProjectId = documentSnapshot.data().project.id
+      }.bind(this))
       this.modalForm = 'loghours'
       this.toggleModal()
     },
@@ -341,20 +342,19 @@ export default {
     }
   },
   created: function () {
-    var self = this
     db.collection('users').where('email', '==', this.email)
       .get()
       .then(function (querySnapshot) {
         querySnapshot.forEach(function (doc) {
-          self.uid = doc.id
-          if (self.$route.path === '/timelog') {
-            self.userFilter = ''
+          this.uid = doc.id
+          if (this.$route.path === '/timelog') {
+            this.userFilter = ''
           } else {
-            self.userFilter = self.uid
+            this.userFilter = this.uid
           }
-        })
-        self.queryHours()
-      })
+        }.bind(this))
+        this.queryHours()
+      }.bind(this))
       .catch(function (error) {
         console.log('Error getting documents:', error)
       })

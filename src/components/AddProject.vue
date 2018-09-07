@@ -48,10 +48,9 @@ export default {
   },
   methods: {
     checkClient () {
-      var self = this
       db.collection('clients').doc(this.client).get().then(function (documentSnapshot) {
-        self.clientName = documentSnapshot.data().name
-      })
+        this.clientName = documentSnapshot.data().name
+      }.bind(this))
     },
     projCallback () {
       this.$emit('projCallback')

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Add New task</h1>
+    <h1>Add New Task</h1>
     <form>
       <h3>{{clientName}}</h3>
       <h3>{{projectName}}</h3>
@@ -48,11 +48,10 @@ export default {
     }
   },
   created: function () {
-    var self = this
     db.collection('projects').doc(this.activeProject).get().then(function (documentSnapshot) {
-      self.projectName = documentSnapshot.data().name
-      self.clientName = documentSnapshot.data().clientName
-    })
+      this.projectName = documentSnapshot.data().name
+      this.clientName = documentSnapshot.data().clientName
+    }.bind(this))
     this.project = db.collection('projects').doc(this.activeProject)
   }
 }

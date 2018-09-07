@@ -9,9 +9,9 @@
       <h4>Task: {{task.task}}</h4>
       <input v-model="date" type="date">
       <input v-model="comments" type="text" placeholder="What did you do?">
-      <input v-model="hours" type="number" placeholder="0" autofocus v-on:keydown.13="logHours(activeClientId, client, project, projectName, activeProject, activeTask, activeTaskId, hours, comments)">
-      <button type="button" v-if="!this.timeEntryID" v-on:click="logHours(activeClientId, client, clientName, project, projectName, activeProject, activeTask, activeTaskId, hours, comments, date)">Submit</button>
-      <button type="button" v-if="this.timeEntryID" v-on:click="updateHours(timeEntryID, hours, comments, date, projectId, clientId, activeTaskId)">Edit</button>
+      <input v-model="hours" type="number" placeholder="0" autofocus v-on:keydown.13="submitTimeData()">
+      <button type="button" v-if="!this.timeEntryID" v-on:click="submitTimeData()">Submit</button>
+      <button type="button" v-if="this.timeEntryID" v-on:click="submitTimeData()">Edit</button>
     </div>
   </div>
 </template>
@@ -21,7 +21,7 @@ import { db } from '../main'
 import writeFunctions from '../mixins/writeFunctions'
 export default {
   mixins: [writeFunctions],
-  props: ['activeProject', 'activeTask', 'toggleModal()', 'client', 'budget', 'logged', 'activeTaskId', 'activeClientId', 'timeEntryID'],
+  props: ['activeProject', 'activeTask', 'toggleModal()', 'client', 'budget', 'logged', 'activeTaskId', 'activeClientId', 'timeEntryID', 'activeProjectId'],
   name: 'LogHour',
   data () {
     return {
@@ -52,39 +52,45 @@ export default {
       this.clientName = ''
     },
     queryTasks () {
-      var self = this
       db.collection('tasks').doc(this.activeTaskId)
         .onSnapshot(function (querySnapshot) {
-          self.task = querySnapshot.data()
-          self.task.id = querySnapshot.id
-        })
+          this.task = querySnapshot.data()
+          this.task.id = querySnapshot.id
+        }.bind(this))
+    },
+    submitTimeData () {
+      if (!this.timeEntryID) {
+        this.logHours(this.activeClientId, this.client, this.clientName, this.project, this.projectName, this.activeProjectId, this.activeTask, this.activeTaskId, this.hours, this.comments, this.date)
+      } else {
+        this.updateHours(this.timeEntryID, this.hours, this.comments, this.date, this.activeProjectId, this.clientId, this.activeTaskId)
+      }
     }
   },
   created: function () {
-    var self = this
     if (this.timeEntryID) {
       db.collection('timelog').doc(this.timeEntryID).get().then(function (documentSnapshot) {
         var data = documentSnapshot.data()
-        self.editEntryData = data
-        self.editEntryData.id = documentSnapshot.id
-        self.clientName = data.clientName
-        self.projectName = data.projectName
-        self.projectId = data.project.id
-        self.project = data.project
-        self.clientId = data.clientId
-        self.date = self.formatDate(data.activityDate)
-        self.comments = data.comments
-        self.hours = data.hours
-        self.queryTasks()
-      })
+        this.editEntryData = data
+        this.editEntryData.id = documentSnapshot.id
+        this.clientName = data.clientName
+        this.projectName = data.projectName
+        this.projectId = data.project.id
+        this.project = data.project
+        this.clientId = data.clientId
+        this.date = this.formatDate(data.activityDate)
+        this.comments = data.comments
+        this.hours = data.hours
+        this.queryTasks()
+      }.bind(this))
     } else {
       db.collection('projects').doc(this.activeProject).get().then(function (documentSnapshot) {
-        self.projectName = documentSnapshot.data().name
-        self.clientName = documentSnapshot.data().clientName
-        self.queryTasks()
-      })
+        this.projectName = documentSnapshot.data().name
+        this.clientName = documentSnapshot.data().clientName
+        this.queryTasks()
+      }.bind(this))
       this.project = db.collection('projects').doc(this.activeProject)
     }
+    this.date = this.formatDate(new Date())
   }
 }
 </script>

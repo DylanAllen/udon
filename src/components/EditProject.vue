@@ -51,7 +51,6 @@ export default {
   },
   methods: {
     updateProject (projectname, start, due, budget, status, retainer) {
-      var self = this
       var projectData = {
         'name': projectname,
         'start': this.addDays(new Date(start), 1),
@@ -62,8 +61,8 @@ export default {
       }
       db.collection('projects').doc(this.activeProject).update(projectData)
         .then(function (docRef) {
-          self.logActivity(self.activeClientId, self.activeProject, 'projects', projectData, 'update')
-        })
+          this.logActivity(this.activeClientId, this.activeProject, 'projects', projectData, 'update')
+        }.bind(this))
       this.$parent.projCallback()
     },
     displayProject (id) {
@@ -89,7 +88,6 @@ export default {
         })
     },
     detectFiles (fileList) {
-      var self = this
       Array.from(Array(fileList.length).keys()).map(x => {
         db.collection('media').doc(fileList[x].name).get()
           .then((doc) => {
@@ -97,36 +95,33 @@ export default {
               if (!confirm('A file by that name is already on the server. Would you like to overwrite this file?')) {
                 console.log('Upload Aborted')
               } else {
-                self.overWriteUpload(fileList[x])
+                this.overWriteUpload(fileList[x])
               }
             } else {
-              self.newUpload(fileList[x])
+              this.newUpload(fileList[x])
             }
           })
       })
     },
     overWriteUpload (file) {
-      var self = this
       this.uploadTask = storage.ref('projects/' + file.name).put(file)
       this.uploadTask.then(snapshot => {
-        self.downloadURL = this.uploadTask.snapshot.downloadURL
-        self.updateMediaToDatabase(this.uploadTask.snapshot.metadata.name, this.uploadTask.snapshot.downloadURL, this.activeProject, this.uploadTask.snapshot.metadata.size)
+        this.downloadURL = this.uploadTask.snapshot.downloadURL
+        this.updateMediaToDatabase(this.uploadTask.snapshot.metadata.name, this.uploadTask.snapshot.downloadURL, this.activeProject, this.uploadTask.snapshot.metadata.size)
       })
     },
     newUpload (file) {
-      var self = this
       this.uploadTask = storage.ref('projects/' + file.name).put(file)
       this.uploadTask.then(snapshot => {
-        console.log(this.uploadTask.snapshot.metadata.size)
-        self.downloadURL = this.uploadTask.snapshot.downloadURL
-        self.addMediaToDatabase(this.uploadTask.snapshot.metadata.name, this.uploadTask.snapshot.downloadURL, this.activeProject, this.uploadTask.snapshot.metadata.size)
+        snapshot.ref.getDownloadURL().then(function (downloadURL) {
+          this.downloadURL = downloadURL
+          this.addMediaToDatabase(this.uploadTask.snapshot.metadata.name, this.downloadURL, this.activeProject, this.uploadTask.snapshot.metadata.size)
+        }.bind(this))
       })
     },
     addMediaToDatabase (name, download, projectid, filesize) {
-      console.log(filesize)
       var mediaData = ''
       var fileData = []
-      var self = this
       var fileupdate = {
         filename: name,
         downloadURL: download,
@@ -141,8 +136,8 @@ export default {
             filename: name,
             filesize: filesize
           }
-          if (self.files !== undefined) {
-            fileData = self.files
+          if (this.files !== undefined) {
+            fileData = this.files
             fileData.push(mediaData)
           } else {
             fileData = [mediaData]
@@ -150,14 +145,13 @@ export default {
           db.collection('projects').doc(projectid).update({
             files: fileData
           }).then(function () {
-            self.logActivity(self.activeClientID, projectid, 'media', fileData, 'create')
-            self.$parent.projCallback()
-          })
-        })
+            this.logActivity(this.activeClientId, projectid, 'media', fileData, 'create')
+            this.$parent.projCallback()
+          }.bind(this))
+        }.bind(this))
     },
     updateMediaToDatabase (name, download, projectid, path) {
       var mediaData = ''
-      var self = this
       var fileupdate = {
         filename: name,
         downloadURL: download,
@@ -165,48 +159,47 @@ export default {
       }
       db.collection('media').doc(name).set(fileupdate)
         .then(function (docRef) {
-          self.logActivity(self.activeClientID, projectid, 'media', fileupdate, 'update')
+          this.logActivity(this.activeClientId, projectid, 'media', fileupdate, 'update')
           mediaData = {
             id: name,
             url: download,
             filename: name
           }
           var newfiles = []
-          for (var i = 0; i < self.files.length; i++) {
-            if (self.files[i].id !== mediaData.id) {
-              newfiles.push(self.files[i])
+          for (var i = 0; i < this.files.length; i++) {
+            if (this.files[i].id !== mediaData.id) {
+              newfiles.push(this.files[i])
             }
           }
           newfiles.push(mediaData)
           db.collection('projects').doc(projectid).update({
             files: newfiles
           }).then(function () {
-            self.$parent.projCallback()
-          })
-        })
+            this.$parent.projCallback()
+          }.bind(this))
+        }.bind(this))
     },
     deleteFile (file) {
-      var self = this
       var fileRef = storage.ref().child('projects/' + file.filename)
       var mediaRef = db.collection('media').doc(file.id)
       var newfiles = []
-      for (var i = 0; i < self.files.length; i++) {
-        if (self.files[i].id !== file.id) {
-          newfiles.push(self.files[i])
+      for (var i = 0; i < this.files.length; i++) {
+        if (this.files[i].id !== file.id) {
+          newfiles.push(this.files[i])
         }
       }
       fileRef.delete().then(function () {
         mediaRef.delete().then(function () {
-          self.logActivity(self.activeClientID, self.activeProject, 'media', file, 'delete')
-          db.collection('projects').doc(self.activeProject).update({
+          this.logActivity(this.activeClientId, this.activeProject, 'media', file, 'delete')
+          db.collection('projects').doc(this.activeProject).update({
             files: newfiles
           }).then(function () {
-            self.$parent.projCallback()
+            this.$parent.projCallback()
           })
-        }).catch(function (error) {
+        }.bind(this)).catch(function (error) {
           console.error('Error removing document: ', error)
         })
-      }).catch(function (error) {
+      }.bind(this)).catch(function (error) {
         alert('File Not Deleted: ' + error)
       })
     }

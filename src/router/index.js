@@ -12,7 +12,7 @@ import TimeLog from '@/components/HourLog'
 import Report from '@/components/Report'
 import NotFound from '@/components/NotFound'
 import Verify from '@/components/Verify'
-import firebase from 'firebase'
+import firebase from 'firebase/app'
 
 Vue.use(Router)
 
@@ -98,7 +98,8 @@ let router = new Router({
       name: 'User Time Log',
       component: TimeLog,
       meta: {
-        requiresAuth: true
+        requiresAuth: true,
+        title: 'My Timelog'
       }
     },
     {

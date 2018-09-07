@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import firebase from 'firebase'
+import firebase from 'firebase/app'
 import { db } from '../main'
 import writeFunctions from '../mixins/writeFunctions'
 export default {
@@ -35,37 +35,36 @@ export default {
   },
   methods: {
     updateProfile () {
-      var self = this
       firebase.auth().currentUser.updateProfile({
         displayName: this.uname
       }).then(
         function (user) {
-          db.collection('users').doc(self.theuid).update({
-            name: self.uname,
-            department: self.department,
-            phone: self.phone,
-            title: self.title
-          }).then(function (docRef) {
-            self.logActivity('', '', 'users', docRef, 'update')
-          })
-        }
+          var userdata = {
+            name: this.uname,
+            department: this.department,
+            phone: this.phone,
+            title: this.title
+          }
+          db.collection('users').doc(this.theuid).update(userdata).then(function () {
+            this.logActivity('', '', 'users', userdata, 'update')
+          }.bind(this))
+        }.bind(this)
       )
       alert('Your Profile has been Updated')
     }
   },
   created () {
-    var self = this
     db.collection('users').where('email', '==', this.email)
       .get()
       .then(function (querySnapshot) {
         querySnapshot.forEach(function (doc) {
           var user = doc.data()
-          self.title = user.title
-          self.department = user.department
-          self.phone = user.phone
-          self.theuid = doc.id
-        })
-      })
+          this.title = user.title
+          this.department = user.department
+          this.phone = user.phone
+          this.theuid = doc.id
+        }.bind(this))
+      }.bind(this))
       .catch(function (error) {
         console.log('Error getting documents:', error)
       })

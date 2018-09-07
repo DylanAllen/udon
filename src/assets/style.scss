@@ -131,6 +131,24 @@ nav a, nav span {
   content: ""; /* This ensures the before and after elements exist */
 }
 
+.timercontainer {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  background-color: #ffffff;
+  width: 600px;
+  max-width: 90%;
+  padding: 20px;
+  border-top: 2px solid #eaeaea;
+  border-left: 2px solid #eaeaea;
+}
+
+@media (max-width: 600px) {
+  .timercontainer {
+    padding: 10px 10px 0 10px;
+  }
+}
+
 .menu-active #hamburger:before {
   transform: translateY(-9px) rotate(45deg);
 }

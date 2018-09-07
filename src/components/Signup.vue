@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import firebase from 'firebase'
+import firebase from 'firebase/app'
 import router from '../router'
 import { db } from '../main'
 export default {
@@ -33,15 +33,17 @@ export default {
   methods: {
     signUp: function () {
       var theuname = this.username
-      var self = this
+      // if (!this.email.endsWith('@hamptoncreative.com')) {
+      //   alert('Sorry, this site is only available to HC employees at thie point.')
+      // } else {
       firebase.auth().createUserWithEmailAndPassword(this.email, this.password).then(
         function (user) {
           db.collection('users').doc(user.uid).set({
-            name: self.username,
-            email: self.email,
-            department: self.department,
-            phone: self.phone,
-            title: self.title
+            name: this.username,
+            email: this.email,
+            department: this.department,
+            phone: this.phone,
+            title: this.title
           }).then(user.updateProfile({
             displayName: theuname
           }).then(function () {
@@ -54,11 +56,12 @@ export default {
           }).catch(function (error) {
             alert('Error: ' + error.message)
           }))
-        },
+        }.bind(this),
         function (err) {
           alert('Oops.' + err.message)
         }
       )
+      // }
     }
   }
 }

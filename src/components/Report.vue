@@ -51,7 +51,7 @@
 
 <script>
 import { db } from '../main'
-import firebase from 'firebase'
+import firebase from 'firebase/app'
 import writeFunctions from '../mixins/writeFunctions'
 export default {
   mixins: [writeFunctions],
@@ -73,18 +73,17 @@ export default {
       this.$emit('projCallback')
     },
     queryProjects () {
-      var self = this
       var projects = db.collection('projects')
       projects
         .get()
         .then(function (querySnapshot) {
-          self.log = []
+          this.log = []
           querySnapshot.forEach(function (doc) {
             var hour = doc.data()
             hour.id = doc.id
-            self.log.push(hour)
+            this.log.push(hour)
           })
-        })
+        }.bind(this))
     }
   },
   created: function () {

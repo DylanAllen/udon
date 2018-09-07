@@ -203,20 +203,19 @@ export default {
       this.toggleModal()
     },
     updateSelects () {
-      var self = this
       db.collection('clients')
         .get()
         .then(function (querySnapshot) {
-          self.clientSelect = []
-          self.clientSelect.push({
+          this.clientSelect = []
+          this.clientSelect.push({
             id: 'all',
             name: 'All Clients'
           })
           querySnapshot.forEach(function (doc) {
             var cl = {id: doc.id, name: doc.data().name}
-            self.clientSelect.push(cl)
-          })
-        })
+            this.clientSelect.push(cl)
+          }.bind(this))
+        }.bind(this))
         .catch(function (error) {
           console.log('Error getting documents:', error)
         })
@@ -225,19 +224,18 @@ export default {
       return true
     },
     setProjects () {
-      var self = this
       db.collection('projects')
         .limit(100)
         .orderBy(this.sortValue.id, this.sortDir)
         .onSnapshot(function (querySnapshot) {
-          self.filteredProjects = []
+          this.filteredProjects = []
           querySnapshot.forEach(function (doc) {
             var proj = []
             proj = doc.data()
             proj.id = doc.id
-            self.filteredProjects.push(proj)
-          })
-        })
+            this.filteredProjects.push(proj)
+          }.bind(this))
+        }.bind(this))
     },
     sortProjects (sort) {
       function compare (a, b) {
@@ -280,19 +278,17 @@ export default {
     if (localStorage.getItem('clients')) {
       this.clients = JSON.parse(localStorage.getItem('clients'))
     }
-
-    var self = this
     db.collection('meta').doc('projectmeta').get()
       .then(function (querySnapshot) {
-        self.statuses = querySnapshot.data().status
-        self.statuses.push('All')
-        self.statuses.push('All Open')
-      })
+        this.statuses = querySnapshot.data().status
+        this.statuses.push('All')
+        this.statuses.push('All Open')
+      }.bind(this))
       .catch(function (error) {
         console.log('Error getting meta:', error)
-        self.statuses.push('All')
-        self.statuses.push('All Open')
-      })
+        this.statuses.push('All')
+        this.statuses.push('All Open')
+      }.bind(this))
     this.setProjects()
     this.updateSelects()
   },

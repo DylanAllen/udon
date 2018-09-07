@@ -1,10 +1,9 @@
 import { db } from '../main'
-import firebase from 'firebase'
+import firebase from 'firebase/app'
 const writeFunctions = {
   methods: {
     addProject (client, clientName, projectname, start, due, budget, status, retainer, type) {
       const createdAt = new Date()
-      var self = this
       var projectValues = {
         'name': projectname,
         'client': db.collection('clients').doc(client),
@@ -21,40 +20,37 @@ const writeFunctions = {
       db.collection('projects').add(projectValues)
         .then(
           function (docRef) {
-            self.logActivity(client, docRef.id, 'projects', projectValues, 'create')
-            self.projectname = ''
-            self.start = ''
-            self.due = ''
-            self.budget = ''
-            self.status = 'Open'
-            self.retainer = ''
-            self.type = ''
-            self.$parent.projCallback()
-          },
+            this.logActivity(client, docRef.id, 'projects', projectValues, 'create')
+            this.projectname = ''
+            this.start = ''
+            this.due = ''
+            this.budget = ''
+            this.status = 'Open'
+            this.retainer = ''
+            this.type = ''
+            this.$parent.projCallback()
+          }.bind(this),
           function (err) {
             alert('Oops. ' + err.message)
           }
         )
     },
     deleteClient (id) {
-      var self = this
       db.collection('clients').doc(id).delete()
         .then(function () {
-          self.logActivity(id, '', 'clients', '', 'delete')
-        })
+          this.logActivity(id, '', 'clients', '', 'delete')
+        }.bind(this))
     },
     updateClient (client, name, contact, email, active) {
-      var self = this
       var clientData = {'name': name, 'email': email, 'contact': contact, 'active': active}
       db.collection('clients').doc(client).update(clientData)
         .then(function () {
-          self.logActivity(client, '', 'clients', clientData, 'update')
-        })
+          this.logActivity(client, '', 'clients', clientData, 'update')
+        }.bind(this))
       var modal = document.getElementById('editclient')
       modal.classList.toggle('active')
     },
     createTask (client, clientName, projectId, project, projectName, taskName, budget, category) {
-      var self = this
       var taskData = {
         'task': taskName,
         'client': client,
@@ -67,17 +63,16 @@ const writeFunctions = {
       db.collection('tasks').add(taskData)
         .then(
           function () {
-            self.logActivity(client, projectId, 'tasks', taskData, 'create')
-            self.$parent.toggleModal()
-            self.clearInputs()
-          },
+            this.logActivity(client, projectId, 'tasks', taskData, 'create')
+            this.$parent.toggleModal()
+            this.clearInputs()
+          }.bind(this),
           function (err) {
             alert('Oops. ' + err.message)
           }
         )
     },
-    logHours (clientId, client, clientName, project, projectName, projectId, task, taskId, hours, comments, date) {
-      var self = this
+    logHours (clientId, client, clientName, project, projectName, projectId, task, taskId, hours, comments, date, timerMode) {
       var user = firebase.auth().currentUser
       var logData = {
         'client': client,
@@ -92,36 +87,39 @@ const writeFunctions = {
         'hours': parseFloat(hours),
         'date': new Date(),
         'comments': comments,
-        'activityDate': new Date(date)
+        'activityDate': this.addDays(date, 1)
       }
       db.collection('timelog').add(logData)
         .then(
           function () {
-            self.logActivity(clientId, projectId, 'timelog', logData, 'create')
-            self.updateProjectLog(projectId, taskId)
-            self.$parent.toggleModal()
-            self.clearInputs()
-          },
+            this.logActivity(clientId, projectId, 'timelog', logData, 'create')
+            this.updateProjectLog(projectId, taskId)
+            if (!timerMode) {
+              this.$parent.toggleModal()
+              this.clearInputs()
+            } else {
+              this.toggleModal()
+            }
+          }.bind(this),
           function (err) {
             alert('Oops. ' + err.message)
           }
         )
     },
     updateHours (timeEntryID, hours, comments, date, projectId, clientId, activeTaskId) {
-      var self = this
       var logData = {
         'hours': parseFloat(hours),
         'comments': comments,
-        'activityDate': new Date(date)
+        'activityDate': this.addDays(date, 1)
       }
       db.collection('timelog').doc(timeEntryID).update(logData)
         .then(function (docRef) {
           logData.timeId = timeEntryID
-          self.logActivity(clientId, projectId, 'timelog', logData, 'update')
-          self.updateProjectLog(projectId, activeTaskId)
-          self.$parent.toggleModal()
-          self.$parent.queryHours()
-        })
+          this.logActivity(clientId, projectId, 'timelog', logData, 'update')
+          this.updateProjectLog(projectId, activeTaskId)
+          this.$parent.toggleModal()
+          this.$parent.queryHours()
+        }.bind(this))
     },
     updateProjectLog (projectId, taskId) {
       var theproject = db.collection('projects').doc(projectId)
@@ -168,7 +166,6 @@ const writeFunctions = {
         })
     },
     submitChat () {
-      var self = this
       var chatData = {
         content: this.$refs.editor.getContent(),
         project: this.project,
@@ -179,8 +176,8 @@ const writeFunctions = {
       }
       db.collection('chats').add(chatData)
         .then(function () {
-          self.$refs.editor.setContent('')
-        })
+          this.$refs.editor.setContent('')
+        }.bind(this))
     },
     logActivity (clientId, projectId, collection, info, type) {
       var logData = {}

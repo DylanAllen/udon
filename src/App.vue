@@ -25,6 +25,9 @@
       <transition name="fade">
         <router-view/>
       </transition>
+      <div id="timer">
+        <Timer/>
+      </div>
     </div>
     <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
   </div>
@@ -32,9 +35,13 @@
 
 <script>
 import { db } from './main'
-import firebase from 'firebase'
+import firebase from 'firebase/app'
+import Timer from './components/Timer'
 export default {
   name: 'App',
+  components: {
+    'Timer': Timer
+  },
   data () {
     return {
       'email': '',
@@ -44,7 +51,7 @@ export default {
   methods: {
     logout: function () {
       firebase.auth().signOut().then(() => {
-        this.$router.replace('login')
+        this.$router.go('login')
         this.toggleMenu()
       })
     },
@@ -53,7 +60,6 @@ export default {
     }
   },
   created: function () {
-    var self = this
     let currentUser = firebase.auth().currentUser
     if (currentUser) {
       this.email = firebase.auth().currentUser.email
@@ -61,9 +67,9 @@ export default {
         .get()
         .then(function (querySnapshot) {
           querySnapshot.forEach(function (doc) {
-            self.uid = doc.id
-          })
-        })
+            this.uid = doc.id
+          }.bind(this))
+        }.bind(this))
     }
   }
 }
