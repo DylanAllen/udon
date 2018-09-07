@@ -308,14 +308,21 @@ export default {
       e.target.parentNode.classList.toggle('active')
     },
     exportToCSV () {
-      this.csvData = this.filteredLog
-      for (var i = 0; i < this.csvData.length; i++) {
-        delete this.csvData[i].client
-        delete this.csvData[i].project
-        delete this.csvData[i].id
-        delete this.csvData[i].taskId
-        delete this.csvData[i].userid
-        delete this.csvData[i].clientId
+      for (var i = 0; i < this.filteredLog.length; i++) {
+        var logitem = {}
+        for (var key in this.filteredLog[i]) {
+          if (key === 'client' || key === 'project' || key === 'id' || key === 'taskId' || key === 'userid' || key === 'clientId') {
+            // do nothing
+          } else if (key === 'activityDate' || key === 'date') {
+            logitem[key] = JSON.parse(JSON.stringify(this.formatDate(this.filteredLog[i][key].toDate())))
+          } else {
+            logitem[key] = JSON.parse(JSON.stringify(this.filteredLog[i][key]))
+          }
+        }
+        logitem.comments = '"' + logitem.comments + '"'
+        logitem.task = '"' + logitem.task + '"'
+        logitem.projectName = '"' + logitem.projectName + '"'
+        this.csvData.push(logitem)
       }
       this.downloadCSV(this.csvData, { filename: 'UdonLogData.csv' })
     },
