@@ -10,7 +10,7 @@
       <input type="password" v-model="password" v-on:keyup.enter="signUp" autocomplete="new-password" placeholder="Password">
       <button v-on:click="signUp">Sign Up</button>
     </div>
-    <span>or go back to <router-link to="/login">login</router-link></span>
+    <span>Go back to <router-link to="/login">login</router-link> or <router-link to="/reset-password">reset your password</router-link></span>
   </div>
 </template>
 

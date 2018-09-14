@@ -10,6 +10,7 @@ import AddProject from '@/components/AddProject'
 import Projects from '@/components/Projects'
 import TimeLog from '@/components/HourLog'
 import Report from '@/components/Report'
+import ResetPassword from '@/components/ResetPassword'
 import NotFound from '@/components/NotFound'
 import Verify from '@/components/Verify'
 import firebase from 'firebase/app'
@@ -114,6 +115,11 @@ let router = new Router({
       path: '/verify',
       name: 'Verify',
       component: Verify
+    },
+    {
+      path: '/reset-password',
+      name: 'ResetPassword',
+      component: ResetPassword
     },
     {
       path: '*',

@@ -5,7 +5,7 @@
       <input type="text" v-model="email" autocomplete="email" placeholder="Email">
       <input type="password" v-model="password" v-on:keyup.enter="login" autocomplete="current-password" placeholder="Password">
       <button v-on:click="login">Login</button>
-      <p>Login here or <router-link to="/signup">Create an Account</router-link></p>
+      <p>Login here, <router-link to="/signup">Create an Account</router-link>, or <router-link to="/reset-password">reset your password</router-link>.</p>
     </div>
   </div>
 </template>
